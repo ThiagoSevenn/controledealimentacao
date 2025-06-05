@@ -8,9 +8,10 @@
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
+    
   
-  (req-post	(endereco-para "/transacoes")(ganho "data" "nome" 2000))
-  (req-post	(endereco-para "/transacoes")(ganho "data" "nome" 2000))
-  (req-post	(endereco-para "/transacoes")(perda "data" "nome" 3000))
+  ;; (req-post	(endereco-para "/transacoes")(ganho "data" "nome" 2000))
+  ;; (req-post	(endereco-para "/transacoes")(perda "data" "nome" 3000))
   (frontend/inicializar)
+  (frontend/terceira-alternativa)
 )

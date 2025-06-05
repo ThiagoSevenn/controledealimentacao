@@ -13,7 +13,7 @@
 (defn	ganho	[data nome valor]
 		(conteudo-como-json	{:data data :nome nome :valor valor	:tipo	"ganho"}))
 
-(def porta-padrao 3000)
+(def porta-padrao 3001)
 
 (defn endereco-para	[rota] 
   (str "http://localhost:"
@@ -21,3 +21,6 @@
 
 (defn req-post [endereco dado]
 	(client/post endereco dado))
+
+(defn req-get [endereco requisicao]
+	(client/get endereco requisicao))	

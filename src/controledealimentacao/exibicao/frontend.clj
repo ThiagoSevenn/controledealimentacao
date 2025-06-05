@@ -31,6 +31,9 @@
   (printf "                              ")
   (println str))
 
+(defn teto-piso []
+  (println (apply str (repeat 80 "_"))))
+
 ;; Avalia as respostas se compreendem as alternativas dadas.
 (defn avaliarResposta [resposta quantidadeAlternativas contador]
   (let []
@@ -48,8 +51,9 @@
         peso (lerInteiro "Peso (Kg): " 0)
         idade (lerInteiro "Idade: " 0)
         sexo (lerString "Sexo (M - Masculino | F - Feminino): " 0)
-        objeto {:altura altura :peso peso :idade idade :sexo sexo}]
-    (req-post (endereco-para "/usuario") (conteudo-como-json objeto))))
+        usuario {:altura altura :peso peso :idade idade :sexo sexo}]
+    (req-post (endereco-para "/usuario") (conteudo-como-json usuario))
+    usuario))
 
 ;; Interface de exibição
 (defn interface [usuario]
@@ -71,6 +75,36 @@
     (enquadrarParaExibicao "| 0 - Sair.                                                 |")
     (enquadrarParaExibicao "|___________________________________________________________|")))
 
+;; Escolhas do usuário
+(defn segunda-alternativa []
+  (teto-piso)
+  (let [data (lerString "Data: " 0)
+        nome (lerString "Qual alimento deseja cadastrar? " 0)
+        quantidade (lerInteiro "Qual a quantidade do alimento informado: " 0)
+        alimento {:quantidade quantidade :nome nome :data data}]
+  (req-post	(endereco-para "/alimentos")(conteudo-como-json alimento))
+  (println alimento)
+  (if (= "S" (lerString "Deseja cadastrar novamente (S/N)? " 0))
+    (recur)
+    (teto-piso))))
+
+(defn terceira-alternativa []
+  (teto-piso)
+  (let [data (lerString "Data: " 0)
+        atividade (lerString "Qual a atividade fisica realizada? " 0)
+        exercicio {:atividade atividade :data data}]
+  (req-post	(endereco-para "/exercicios")(conteudo-como-json exercicio))
+  (println exercicio)
+  (if (= "S" (lerString "Deseja cadastrar novamente (S/N)? " 0))
+    (recur)
+    (teto-piso))))
+
+;; consulta com filtro ou sem filtro
+(defn quarta-alternativa [])
+
+;; consulta de saldo com filtro ou sem filtro
+(defn quinta-alternativa [])
+
 ;; Local onde recebe a interação do usuário com a aplicação e devolve funcionalidades.
 (defn programa [usuario]
   (let []
@@ -79,5 +113,6 @@
       (if (= "sim" (avaliarResposta resposta 5 1))
         (cond 
           (= 1 resposta) (recur (inicializar))
+          (= 2 resposta) (let [] (segunda-alternativa) (recur usuario))
           :else (recur usuario))
         nil))))
