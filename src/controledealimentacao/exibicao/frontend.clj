@@ -36,7 +36,7 @@
     (enquadrarParaExibicao "|___________________________________________________________|")))
 
 ;; Escolhas do usuário
-;;feito ;;registrar alimento
+;; FEITO ;;registrar alimento
 (defn segunda-alternativa []
   (teto-piso)
   (let [data (lerString "Data (dd/mm/yyyy): " 0)
@@ -52,7 +52,7 @@
     (recur)
     (teto-piso))))
 
-;;falta detalhamento para o usuário escolher o exercicio ;;registrar atividade
+;; falta detalhamento para o usuário escolher o exercicio ;;registrar atividade
 (defn terceira-alternativa []
   (teto-piso)
   (let [data (lerString "Data (dd/mm/yyyy): " 0)
@@ -68,63 +68,97 @@
     (recur)
     (teto-piso))))
 
-;; metade - faltam os filtros ;; consulta com filtro ou geral -> alimento
+;; FEITO ;; consulta com filtro ou geral -> alimento
 (defn quarta-alternativa []
   (teto-piso)
-  (let [filtro (lerString "Voce deseja aplicar filtro por data (S/N)? " 0)]
+  (let [filtro (lerString "Voce deseja aplicar filtro por data (S/N)? " 0)
+        vetorAlimentos (ordenar-vetor 
+                       (map alimento-data-int (:alimentos (req-get (endereco-para "/alimentos")))))]
     (if (= filtro "S")
       (let [dataInicial (lerString "Data inicial (dd/mm/yyyy): " 0)
-            dataFinal (lerString "Data final (dd/mm/yyyy): " 0)])
-      (let [vetorAlimentos (:alimentos (req-get (endereco-para "/alimentos")))]
-          (println "Alimentos:")
+            dataFinal (lerString "Data final (dd/mm/yyyy): " 0)
+            vetorDataInicial (repeat (count vetorAlimentos) dataInicial)
+            vetorDataFinal (repeat (count vetorAlimentos) dataFinal)]
+            (println "\nAlimentos:")
+            (doall (map exibir-dados-filtro-alimentos vetorAlimentos 
+                                                      vetorDataInicial
+                                                      vetorDataFinal)))
+      (let []
+          (println "\nAlimentos:")
           (doall (map exibir-dados-alimentos vetorAlimentos)))
     )
-    (if (= "S" (lerString "Deseja consultar novamente (S/N)? " 0))
+    (if (= "S" (lerString "\nDeseja consultar novamente (S/N)? " 0))
         (recur)
         (teto-piso))))
 
-;; metade - faltam os filtros ;; consulta com filtro ou geral -> atividade
+;; FEITO ;; consulta com filtro ou geral -> atividade
 (defn quinta-alternativa []
   (teto-piso)
-  (let [filtro (lerString "Voce deseja aplicar filtro por data (S/N)? " 0)]
+  (let [filtro (lerString "Voce deseja aplicar filtro por data (S/N)? " 0)
+        vetorExercicios (ordenar-vetor 
+                       (map exercicio-data-int (:exercicios (req-get (endereco-para "/exercicios")))))]
     (if (= filtro "S")
       (let [dataInicial (lerString "Data inicial (dd/mm/yyyy): " 0)
-            dataFinal (lerString "Data final (dd/mm/yyyy): " 0)])
-      (let [vetorExercicios (:exercicios (req-get (endereco-para "/exercicios")))]
-          (println "Exercicios:")
+            dataFinal (lerString "Data final (dd/mm/yyyy): " 0)
+            vetorDataInicial (repeat (count vetorExercicios) dataInicial)
+            vetorDataFinal (repeat (count vetorExercicios) dataFinal)]
+            (println "\nExercicios:")
+            (doall (map exibir-dados-filtro-exercicios vetorExercicios 
+                                                       vetorDataInicial
+                                                       vetorDataFinal)))
+      (let []
+          (println "\nExercicios:")
           (doall (map exibir-dados-exercicios vetorExercicios)))
     )
-    (if (= "S" (lerString "Deseja consultar novamente (S/N)? " 0))
+    (if (= "S" (lerString "\nDeseja consultar novamente (S/N)? " 0))
         (recur)
         (teto-piso))))
 
-;; metade - faltam os filtros ;; consulta com filtro ou geral -> registros
+;; FEITO ;; consulta com filtro ou geral -> registros
 (defn sexta-alternativa []
   (teto-piso)
-  (let [filtro (lerString "Voce deseja aplicar filtro por data (S/N)? " 0)]
+  (let [filtro (lerString "Voce deseja aplicar filtro por data (S/N)? " 0)
+        vetorRegistros (ordenar-vetor 
+                       (map registro-data-int (:registros (req-get (endereco-para "/registros")))))]
     (if (= filtro "S")
       (let [dataInicial (lerString "Data inicial (dd/mm/yyyy): " 0)
-            dataFinal (lerString "Data final (dd/mm/yyyy): " 0)])
+            dataFinal (lerString "Data final (dd/mm/yyyy): " 0)
+            vetorDataInicial (repeat (count vetorRegistros) dataInicial)
+            vetorDataFinal (repeat (count vetorRegistros) dataFinal)]
+          (println "\nRegistros:")
+          (doall (map exibir-dados-filtro-registros vetorRegistros 
+                                                    vetorDataInicial
+                                                    vetorDataFinal)))
       (let [vetorRegistros (:registros (req-get (endereco-para "/registros")))]
-          (println "Registros:")
+          (println "\nRegistros:")
           (doall (map exibir-dados-registros vetorRegistros)))
     )
-    (if (= "S" (lerString "Deseja consultar novamente (S/N)? " 0))
+    (if (= "S" (lerString "\nDeseja consultar novamente (S/N)? " 0))
         (recur)
         (teto-piso))))
 
-;; metade - faltam os filtros ;; consultar saldos com filtro ou geral
+;; FEITO ;; consultar saldos com filtro ou geral
 (defn setima-alternativa []
   (teto-piso)
   (let [filtro (lerString "Voce deseja aplicar filtro por data (S/N)? " 0)]
     (if (= filtro "S")
-      (let [dataInicial (lerString "Data inicial (dd/mm/yyyy): " 0)
-            dataFinal (lerString "Data final (dd/mm/yyyy): " 0)])
+      (let [vetorRegistros (ordenar-vetor 
+                           (map registro-data-int (:registros (req-get (endereco-para "/registros")))))
+            dataInicial (lerString "Data inicial (dd/mm/yyyy): " 0)
+            dataFinal (lerString "Data final (dd/mm/yyyy): " 0)
+            vetorDataInicial (repeat (count vetorRegistros) dataInicial)
+            vetorDataFinal (repeat (count vetorRegistros) dataFinal)
+            registrosFiltrados (doall (map dados-filtro-registros vetorRegistros 
+                                                                  vetorDataInicial
+                                                                  vetorDataFinal))
+            saldoFiltrado (saldo-filtrado registrosFiltrados)
+            texto (format "\nSeu saldo filtrado : %.1f kcal" saldoFiltrado)]
+          (println texto))
       (let [saldoGeral (:saldo (req-get (endereco-para "/saldo")))
-            texto (format "Seu saldo geral : %s kcal" saldoGeral)]
+            texto (format "\nSeu saldo geral : %s kcal" saldoGeral)]
           (println texto))
     )
-    (if (= "S" (lerString "Deseja consultar novamente (S/N)? " 0))
+    (if (= "S" (lerString "\nDeseja consultar novamente (S/N)? " 0))
         (recur)
         (teto-piso))))
 
@@ -144,3 +178,15 @@
           (= 7 resposta) (let [] (setima-alternativa) (recur usuario))
           :else (recur usuario))
         nil))))
+
+(defn verificar-usuario []
+  (empty? (:usuario (req-get (endereco-para "/usuario")))))
+
+(defn programa-final []
+  (let [usuario (first (:usuario (req-get (endereco-para "/usuario"))))]
+    (if (verificar-usuario)
+      (programa (inicializar))
+      (programa {:altura (:altura usuario) 
+                  :peso (:peso usuario) 
+                  :idade (:idade usuario) 
+                  :sexo (:sexo usuario)}))))

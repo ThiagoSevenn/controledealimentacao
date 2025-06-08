@@ -1,6 +1,7 @@
 (ns controledealimentacao.auxiliar.auxiliares
   (:require [clj-http.client :as client]
-            [cheshire.core :as json]))
+            [cheshire.core :as json]
+            [clojure.string :as str]))
 
 ;; "reload" na tela, exibição.
 (defn atualizarTela []
@@ -49,11 +50,11 @@
 			:body	(json/generate-string	transacao)
 			:throw-exceptions	false})
 
-(defn	perda	[nome calorias tempo]
-		(conteudo-como-json	{:tipo "perda" :nome nome :tempo tempo :calorias calorias :data "data"}))
+(defn	perda	[nome calorias tempo data]
+		(conteudo-como-json	{:tipo "perda" :nome nome :tempo tempo :calorias calorias :data data}))
 
-(defn	ganho	[nome calorias quantidade]
-		(conteudo-como-json	{:tipo "ganho" :nome nome :quantidade quantidade :calorias calorias :data "data"}))
+(defn	ganho	[nome calorias quantidade data]
+		(conteudo-como-json	{:tipo "ganho" :nome nome :quantidade quantidade :calorias calorias :data data}))
 
 (def porta-padrao 3000)
 
@@ -101,3 +102,83 @@
   (if (contains? registro :quantidade)
     (exibir-dados-alimentos registro)
     (exibir-dados-exercicios registro)))
+
+(defn dados-registros [registro]
+  {:tipo (:tipo registro) :calorias (:calorias registro)})
+;; transforma a data em um tipo int formatado
+(defn formatar-data [dataBruta]
+    (let[data (reverse (str/split dataBruta #"/"))
+         vetorInt (doall (map #(Integer/parseInt %) data))
+         vetorMultiplicador [10000 100 1]
+         dataInt (apply + (doall (map #(* %1 %2) vetorInt vetorMultiplicador)))]
+        dataInt))
+
+(defn alimento-data-int [alimento]
+  {:tipo "ganho" :id (:id alimento)
+                 :nome (:nome alimento) 
+                 :quantidade (:quantidade alimento)
+                 :calorias (:calorias alimento)
+                 :data (:data alimento)
+                 :dataInt (formatar-data (:data alimento))})
+
+(defn exercicio-data-int [exercicio]
+  {:tipo "perda" :id (:id exercicio)
+                 :nome (:nome exercicio) 
+                 :tempo (:tempo exercicio)
+                 :calorias (:calorias exercicio)
+                 :data (:data exercicio)
+                 :dataInt (formatar-data (:data exercicio))})
+
+(defn registro-data-int [registro]
+  (if (contains? registro :quantidade)
+    (alimento-data-int registro)
+    (exercicio-data-int registro)))
+
+(defn ordenar-vetor [vetor]
+  (sort-by :dataInt vetor))
+
+(defn exibir-dados-filtro-alimentos [alimento dataInicial dataFinal]
+  (let [dataAlimento (formatar-data (:data alimento))
+        dataInicialInt (formatar-data dataInicial)
+        dataFinalInt (formatar-data dataFinal)]
+    (if (and (>= dataAlimento dataInicialInt) 
+             (<= dataAlimento dataFinalInt))
+      (exibir-dados-alimentos alimento)
+      nil)))
+
+(defn exibir-dados-filtro-exercicios [exercicio dataInicial dataFinal]
+  (let [dataExercicio (formatar-data (:data exercicio))
+        dataInicialInt (formatar-data dataInicial)
+        dataFinalInt (formatar-data dataFinal)]
+    (if (and (>= dataExercicio dataInicialInt) 
+             (<= dataExercicio dataFinalInt))
+      (exibir-dados-exercicios exercicio)
+      nil)))
+
+(defn exibir-dados-filtro-registros [registro dataInicial dataFinal]
+  (let [dataRegistro (formatar-data (:data registro))
+        dataInicialInt (formatar-data dataInicial)
+        dataFinalInt (formatar-data dataFinal)]
+    (if (and (>= dataRegistro dataInicialInt) 
+             (<= dataRegistro dataFinalInt))
+      (exibir-dados-registros registro)
+      nil)))
+
+(defn dados-filtro-registros [registro dataInicial dataFinal]
+  (let [dataRegistro (formatar-data (:data registro))
+        dataInicialInt (formatar-data dataInicial)
+        dataFinalInt (formatar-data dataFinal)]
+    (if (and (>= dataRegistro dataInicialInt) 
+             (<= dataRegistro dataFinalInt))
+      (dados-registros registro)
+      nil)))
+
+(defn filtro-tipo [registro]
+  (if (= "ganho" (:tipo registro))
+    (:calorias registro)
+    (if (not= registro nil)
+      (- 0 (:calorias registro))
+      0)))
+
+(defn saldo-filtrado [registros]
+  (apply + (doall (map filtro-tipo registros))))
