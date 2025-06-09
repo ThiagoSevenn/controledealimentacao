@@ -53,16 +53,34 @@
     (teto-piso))))
 
 ;; falta detalhamento para o usuário escolher o exercicio ;;registrar atividade
+;; formatar para usuario
+
+(defn exibir [atividade]
+  (println (format "%d - %s" (:id atividade) (:nome atividade))))
+
+;; escolhido
+(defn atividade-escolhida [atividade contador]
+  (format "%s" (:nome atividade)))
+
+(defn escolhido []
+  (println "\nEscolha uma das atividades informadas: ")
+  (doall(map exibir (first (:exercicios (req-get (endereco-para "/exercicios/propostos"))))))
+  (let [exercicios (first (:exercicios (req-get (endereco-para "/exercicios/propostos"))))
+        escolha (range 1 (+ 1 (lerInteiro "Resposta: " 0)) 1)
+        exercicioEscolhido (last (map atividade-escolhida exercicios escolha))]
+      exercicioEscolhido)) 
+
 (defn terceira-alternativa []
   (teto-piso)
   (let [data (lerString "Data (dd/mm/yyyy): " 0)
         atividade (lerString "Qual a atividade fisica realizada? " 0)
-        tempo (lerInteiro "Qual o tempo de duracao do exercicio (min)? " 0)
-        exercicio {:atividade (traduzir-para-en atividade) :tempo tempo :data data}]
-  (req-post	(endereco-para "/exercicios")(conteudo-como-json exercicio))
+        tempo (lerInteiro "Qual o tempo de duracao do exercicio (min)? " 0)]
+  (req-post	(endereco-para "/exercicios/propostos")(conteudo-como-json {:atividade (traduzir-para-en atividade)}))
+  (req-post	(endereco-para "/exercicios")(conteudo-como-json {:atividade (traduzir-para-en (escolhido)) :tempo tempo :data data}))
   (println (format 
-            "Atividade registrada: Dia %s - %d minutos - %s (%s kcal)"
-            data tempo atividade 
+            "\nAtividade registrada: Dia %s - %d minutos - %s (%s kcal)"
+            data tempo 
+            (:nome (last (:exercicios (req-get (endereco-para "/exercicios")))))
             (:calorias (last (:exercicios (req-get (endereco-para "/exercicios")))))))
   (if (= "S" (lerString "Deseja cadastrar novamente (S/N)? " 0))
     (recur)
